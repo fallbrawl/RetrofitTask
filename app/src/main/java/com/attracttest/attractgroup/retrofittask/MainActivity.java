@@ -41,7 +41,7 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         getSupportActionBar().setTitle("Retro");
         searchBar = (EditText) findViewById(R.id.searchToolbar);
-        searchBar.setImeActionLabel("wow", KeyEvent.KEYCODE_SEARCH);
+        searchBar.setImeActionLabel("Srch", KeyEvent.KEYCODE_SEARCH);
 
         //Adapter's init
         gitItems = new ArrayList<>();
@@ -67,7 +67,6 @@ public class MainActivity extends AppCompatActivity {
                             //creatin a message for handler
                             msg = h.obtainMessage(0, response.body().string());
                             //sendin
-                            Log.e("staty", "sebt");
                             h.sendMessage(msg);
                         } catch (IOException e) {
                             e.printStackTrace();
@@ -88,9 +87,7 @@ public class MainActivity extends AppCompatActivity {
                 try {
                     gitItemsAdapter.clear();
                     gitItems = JsonUtils.extractFeatureFromJson(String.valueOf(msg.obj));
-                    Log.e("staty", "handler gets a message!");
                     gitItemsAdapter.addAll(gitItems);
-//                    Log.e("staty", gitItems.get(0).getLogin());
                     gitItemsAdapter.notifyDataSetChanged();
                 } catch (ExecutionException | InterruptedException e) {
                     e.printStackTrace();
@@ -103,7 +100,6 @@ public class MainActivity extends AppCompatActivity {
             public boolean onEditorAction(TextView textView, int i, KeyEvent keyEvent) {
                 searchq = searchBar.getText().toString();
                 if (!searchq.isEmpty()) {tr.run();}
-                Log.e("staty", "searched");
                 searchBar.setText("");
 
                 return true; // Focus will do whatever you put in the logic.
