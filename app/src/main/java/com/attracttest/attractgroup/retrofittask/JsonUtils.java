@@ -18,7 +18,7 @@ public class JsonUtils {
 
     public static ArrayList<GitItem> extractFeatureFromJson(String GitProfileString) throws ExecutionException, InterruptedException {
 
-        gitItemProfileList = new ArrayList<>();
+        ArrayList<GitItem> gitItemProfileList = new ArrayList<>();
 
         // If the JSON string is empty or null, then return early.
         if (TextUtils.isEmpty(GitProfileString)) {

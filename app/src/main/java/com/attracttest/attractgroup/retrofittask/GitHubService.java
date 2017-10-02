@@ -1,12 +1,8 @@
 package com.attracttest.attractgroup.retrofittask;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.http.GET;
-import retrofit2.http.Path;
 import retrofit2.http.Query;
 
 /**
@@ -14,7 +10,7 @@ import retrofit2.http.Query;
  */
 public interface GitHubService {
 
-    final String BASE_URL = "https://api.github.com/";
+    String BASE_URL = "https://api.github.com/";
 
     @GET("search/repositories")
     Call<ResponseBody> getListReposByLang(@Query("q") String lang);

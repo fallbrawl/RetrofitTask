@@ -1,5 +1,7 @@
 package com.attracttest.attractgroup.retrofittask;
 
+import com.google.gson.annotations.SerializedName;
+
 /**
  * Created by nexus on 30.09.2017.
  */

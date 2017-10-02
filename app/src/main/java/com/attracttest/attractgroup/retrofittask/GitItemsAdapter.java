@@ -17,12 +17,10 @@ import java.util.List;
  */
 public class GitItemsAdapter extends ArrayAdapter<GitItem> {
 
-    private List<GitItem> items;
     private LayoutInflater mInflater;
 
     public GitItemsAdapter(Context context, List<GitItem> objects) {
         super(context, 0, objects);
-        items = objects;
         mInflater = LayoutInflater.from(context);
     }
 
@@ -53,12 +51,13 @@ public class GitItemsAdapter extends ArrayAdapter<GitItem> {
             holder = (ViewHolder) convertView.getTag();
         }
 
+        GitItem item=getItem(position);
         // Bind the data efficiently with the holder.
-        holder.login.setText(items.get(position).getLogin());
-        holder.url.setText(items.get(position).getUrl());
-        holder.userId.setText(items.get(position).getId());
+        holder.login.setText(item.getLogin());
+        holder.url.setText(item.getUrl());
+        holder.userId.setText(item.getId());
 
-        Picasso.with(getContext()).load(items.get(position).getAvatar_url()).placeholder(R.mipmap.ic_launcher).fit().into(holder.avatar);
+        Picasso.with(getContext()).load(item.getAvatar_url()).placeholder(R.mipmap.ic_launcher).fit().into(holder.avatar);
 
         return convertView;
     }

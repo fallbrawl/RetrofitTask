@@ -19,7 +19,9 @@ import android.widget.TextView;
 import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
+import retrofit2.Response;
 import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
 
 public class MainActivity extends AppCompatActivity {
     private Toolbar toolbar;
@@ -29,6 +31,8 @@ public class MainActivity extends AppCompatActivity {
     Handler h;
     EditText searchBar;
     String searchq = "java";
+
+    GitHubService service;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,58 +52,32 @@ public class MainActivity extends AppCompatActivity {
         gitItemsAdapter = new GitItemsAdapter(this, gitItems);
 
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl("https://api.github.com/")
+                .baseUrl(GitHubService.BASE_URL)
+                .addConverterFactory(GsonConverterFactory.create())
                 .build();
 
-        final GitHubService service = retrofit.create(GitHubService.class);
+        service = retrofit.create(GitHubService.class);
 
-        final Thread tr = new Thread(new Runnable() {
-            Message msg;
 
-            @Override
-            public void run() {
-                Call<ResponseBody> repos = service.getListReposByLang(searchq);
-                repos.enqueue(new Callback<ResponseBody>() {
-                    @Override
-                    public void onResponse(Call<ResponseBody> call, retrofit2.Response<ResponseBody> response) {
-
-                        try {
-                            //creatin a message for handler
-                            msg = h.obtainMessage(0, response.body().string());
-                            //sendin
-                            h.sendMessage(msg);
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                    }
-
-                    @Override
-                    public void onFailure(Call<ResponseBody> call, Throwable t) {
-                        t.printStackTrace();
-                    }
-                });
-            }
-        });
-        tr.run();
         h = new Handler() {
             public void handleMessage(android.os.Message msg) {
 
                 try {
-                    gitItemsAdapter.clear();
-                    gitItems = JsonUtils.extractFeatureFromJson(String.valueOf(msg.obj));
-                    gitItemsAdapter.addAll(gitItems);
+                    gitItems.clear();
+                    gitItems.addAll(JsonUtils.extractFeatureFromJson(String.valueOf(msg.obj)));
                     gitItemsAdapter.notifyDataSetChanged();
                 } catch (ExecutionException | InterruptedException e) {
                     e.printStackTrace();
                 }
             }
         };
+        startThread();
 
         searchBar.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView textView, int i, KeyEvent keyEvent) {
                 searchq = searchBar.getText().toString();
-                if (!searchq.isEmpty()) {tr.run();}
+                if (!searchq.isEmpty()) {startThread();}
                 searchBar.setText("");
 
                 return true; // Focus will do whatever you put in the logic.
@@ -109,5 +87,48 @@ public class MainActivity extends AppCompatActivity {
         listView = (ListView) findViewById(R.id.listview);
         listView.setAdapter(gitItemsAdapter);
 
+    }
+
+    private void startThread(){
+        final Thread tr = new Thread(new Runnable() {
+            Message msg;
+
+            @Override
+            public void run() {
+                try {
+                    //юзать енкуеуе только без треда во избежании создания потока в потоке
+                    Response<ResponseBody> response= service.getListReposByLang(searchq).execute();
+                    if(response.isSuccessful()){
+                        msg = h.obtainMessage(0, response.body().string());
+                        //sendin
+                        h.sendMessage(msg);}
+
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+//                service.getListReposByLang(searchq).enqueue(new Callback<Response<ResponseBody>>() {
+//                    @Override
+//                    public void onResponse(Call<Response<ResponseBody>> call, retrofit2.Response<Response<ResponseBody>> response) {
+//
+//                        try {
+//                            //creatin a message for handler
+//                            if(response.isSuccessful()){
+//                            msg = h.obtainMessage(0, response.body().body().string());
+//                            //sendin
+//                            h.sendMessage(msg);}
+//                        } catch (IOException e) {
+//                            e.printStackTrace();
+//                        }
+//                    }
+//
+//                    @Override
+//                    public void onFailure(Call<Response<ResponseBody>> call, Throwable t) {
+//                        t.printStackTrace();
+//                    }
+//                });
+            }
+        });
+        tr.start();
     }
 }
