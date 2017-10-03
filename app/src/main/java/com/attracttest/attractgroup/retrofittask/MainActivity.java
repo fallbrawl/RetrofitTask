@@ -4,31 +4,27 @@ import android.os.Bundle;
 import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.widget.EditText;
 import android.widget.ListView;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.concurrent.ExecutionException;
 
 import android.os.Handler;
 import android.widget.TextView;
 
-import com.attracttest.attractgroup.retrofittask.pojos.GitItemsList;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
+import com.attracttest.attractgroup.retrofittask.pojos.GitResponse;
+import com.attracttest.attractgroup.retrofittask.pojos.Item;
 
-import okhttp3.ResponseBody;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 public class MainActivity extends AppCompatActivity {
     private Toolbar toolbar;
-    private ArrayList<GitItemsList> gitItemsLists;
+    private ArrayList<Item> gitItemsLists;
     private GitItemsAdapter gitItemsAdapter;
     private ListView listView;
     Handler handler;
@@ -64,14 +60,7 @@ public class MainActivity extends AppCompatActivity {
 
         handler = new Handler() {
             public void handleMessage(android.os.Message msg) {
-
-                try {
-                    gitItemsLists.clear();
-                    gitItemsLists.addAll();
-                    gitItemsAdapter.notifyDataSetChanged();
-                } catch (ExecutionException | InterruptedException e) {
-                    e.printStackTrace();
-                }
+                gitItemsAdapter.notifyDataSetChanged();
             }
         };
         startThread();
@@ -100,15 +89,15 @@ public class MainActivity extends AppCompatActivity {
             public void run() {
                 try {
                     //юзать енкуеуе только без треда во избежании создания потока в потоке
-                    Response<ResponseBody> response= service.getListReposByLang(searchq).execute();
+                    Response<GitResponse> response= service.getListReposByLang(searchq).execute();
                     if(response.isSuccessful()){
-                        JsonElement jelement = new JsonParser().parse(response.body().string());
-                        JsonObject jobject = jelement.getAsJsonObject();
-                        JsonArray jarray = jobject.getAsJsonArray("items");
 
-                        msg = handler.obtainMessage(0, response.body().string());
+                        Log.d("TAG","response:"+response.body().getItems().size());
+                        gitItemsLists.clear();
+                        gitItemsLists.addAll(response.body().getItems());
                         //sendin
-                        handler.sendMessage(msg);}
+                        handler.sendEmptyMessage(0);
+                    }
 
                 } catch (IOException e) {
                     e.printStackTrace();

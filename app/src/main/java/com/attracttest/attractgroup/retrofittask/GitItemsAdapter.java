@@ -8,8 +8,7 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.attracttest.attractgroup.retrofittask.pojos.GitItemsList;
-import com.attracttest.attractgroup.retrofittask.pojos.Owner;
+import com.attracttest.attractgroup.retrofittask.pojos.Item;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;
@@ -17,11 +16,11 @@ import java.util.List;
 /**
  * Created by nexus on 30.09.2017.
  */
-public class GitItemsAdapter extends ArrayAdapter<Owner> {
+public class GitItemsAdapter extends ArrayAdapter<Item> {
 
     private LayoutInflater mInflater;
 
-    public GitItemsAdapter(Context context, List<Owner> objects) {
+    public GitItemsAdapter(Context context, List<Item> objects) {
         super(context, 0, objects);
         mInflater = LayoutInflater.from(context);
     }
@@ -53,13 +52,14 @@ public class GitItemsAdapter extends ArrayAdapter<Owner> {
             holder = (ViewHolder) convertView.getTag();
         }
 
-        Owner item=getItem(position);
-        // Bind the data efficiently with the holder.
-        holder.login.setText(item.getLogin());
-        holder.url.setText(item.getUrl());
-        holder.userId.setText(item.getId());
+        Item item=getItem(position);
 
-        Picasso.with(getContext()).load(item.getAvatarUrl()).placeholder(R.mipmap.ic_launcher).fit().into(holder.avatar);
+        // Bind the data efficiently with the holder.
+        holder.login.setText(item.getOwner().getLogin());
+        holder.url.setText(item.getOwner().getUrl());
+        holder.userId.setText(String.valueOf(item.getOwner().getId()));
+
+        Picasso.with(getContext()).load(item.getOwner().getAvatarUrl()).placeholder(R.mipmap.ic_launcher).fit().into(holder.avatar);
 
         return convertView;
     }

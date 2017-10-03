@@ -1,7 +1,10 @@
 package com.attracttest.attractgroup.retrofittask;
 
+import com.attracttest.attractgroup.retrofittask.pojos.GitResponse;
+
 import okhttp3.ResponseBody;
 import retrofit2.Call;
+import retrofit2.Response;
 import retrofit2.http.GET;
 import retrofit2.http.Query;
 
@@ -13,7 +16,7 @@ public interface GitHubService {
     String BASE_URL = "https://api.github.com/";
 
     @GET("search/repositories")
-    Call<ResponseBody> getListReposByLang(@Query("q") String lang);
+    Call<GitResponse> getListReposByLang(@Query("q") String lang);
 
 
 
