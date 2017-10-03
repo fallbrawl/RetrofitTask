@@ -4,7 +4,6 @@ import android.os.Bundle;
 import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.widget.EditText;
 import android.widget.ListView;
@@ -16,19 +15,23 @@ import java.util.concurrent.ExecutionException;
 import android.os.Handler;
 import android.widget.TextView;
 
+import com.attracttest.attractgroup.retrofittask.pojos.GitItemsList;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+
 import okhttp3.ResponseBody;
-import retrofit2.Call;
-import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 public class MainActivity extends AppCompatActivity {
     private Toolbar toolbar;
-    private ArrayList<GitItem> gitItems;
+    private ArrayList<GitItemsList> gitItemsLists;
     private GitItemsAdapter gitItemsAdapter;
     private ListView listView;
-    Handler h;
+    Handler handler;
     EditText searchBar;
     String searchq = "java";
 
@@ -48,8 +51,8 @@ public class MainActivity extends AppCompatActivity {
         searchBar.setImeActionLabel("Srch", KeyEvent.KEYCODE_SEARCH);
 
         //Adapter's init
-        gitItems = new ArrayList<>();
-        gitItemsAdapter = new GitItemsAdapter(this, gitItems);
+        gitItemsLists = new ArrayList<>();
+        gitItemsAdapter = new GitItemsAdapter(this, gitItemsLists);
 
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl(GitHubService.BASE_URL)
@@ -59,12 +62,12 @@ public class MainActivity extends AppCompatActivity {
         service = retrofit.create(GitHubService.class);
 
 
-        h = new Handler() {
+        handler = new Handler() {
             public void handleMessage(android.os.Message msg) {
 
                 try {
-                    gitItems.clear();
-                    gitItems.addAll(JsonUtils.extractFeatureFromJson(String.valueOf(msg.obj)));
+                    gitItemsLists.clear();
+                    gitItemsLists.addAll();
                     gitItemsAdapter.notifyDataSetChanged();
                 } catch (ExecutionException | InterruptedException e) {
                     e.printStackTrace();
@@ -99,9 +102,13 @@ public class MainActivity extends AppCompatActivity {
                     //юзать енкуеуе только без треда во избежании создания потока в потоке
                     Response<ResponseBody> response= service.getListReposByLang(searchq).execute();
                     if(response.isSuccessful()){
-                        msg = h.obtainMessage(0, response.body().string());
+                        JsonElement jelement = new JsonParser().parse(response.body().string());
+                        JsonObject jobject = jelement.getAsJsonObject();
+                        JsonArray jarray = jobject.getAsJsonArray("items");
+
+                        msg = handler.obtainMessage(0, response.body().string());
                         //sendin
-                        h.sendMessage(msg);}
+                        handler.sendMessage(msg);}
 
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -114,9 +121,9 @@ public class MainActivity extends AppCompatActivity {
 //                        try {
 //                            //creatin a message for handler
 //                            if(response.isSuccessful()){
-//                            msg = h.obtainMessage(0, response.body().body().string());
+//                            msg = handler.obtainMessage(0, response.body().body().string());
 //                            //sendin
-//                            h.sendMessage(msg);}
+//                            handler.sendMessage(msg);}
 //                        } catch (IOException e) {
 //                            e.printStackTrace();
 //                        }
