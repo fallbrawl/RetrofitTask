@@ -8,8 +8,6 @@ import com.google.gson.annotations.SerializedName;
  */
 public class Item {
 
-
-
     @SerializedName("id")
     private int id;
     @SerializedName("name")
@@ -27,6 +25,12 @@ public class Item {
     private boolean fork;
     @SerializedName("url")
     private String url;
+
+    public String getLanguage() {
+        return language;
+    }
+
+    private String language;
 
     public Item() {
     }

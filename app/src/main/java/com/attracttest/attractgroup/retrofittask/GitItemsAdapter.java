@@ -5,11 +5,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.attracttest.attractgroup.retrofittask.pojos.Item;
-import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
@@ -40,10 +38,10 @@ public class GitItemsAdapter extends ArrayAdapter<Item> {
             // Creates a ViewHolder and store references to the two children views
             // we want to bind data to.
             holder = new ViewHolder();
-            holder.login =  convertView.findViewById(R.id.login);
-            holder.url =  convertView.findViewById(R.id.url);
-            holder.userId =  convertView.findViewById(R.id.user_id);
-            holder.avatar =  convertView.findViewById(R.id.avatar);
+            holder.item_id = convertView.findViewById(R.id.item_id);
+            holder.url = convertView.findViewById(R.id.url);
+            holder.description = convertView.findViewById(R.id.description);
+            holder.language = convertView.findViewById(R.id.language);
 
             convertView.setTag(holder);
         } else {
@@ -52,22 +50,23 @@ public class GitItemsAdapter extends ArrayAdapter<Item> {
             holder = (ViewHolder) convertView.getTag();
         }
 
-        Item item=getItem(position);
+        Item item = getItem(position);
 
         // Bind the data efficiently with the holder.
-        holder.login.setText(item.getOwner().getLogin());
-        holder.url.setText(item.getOwner().getUrl());
-        holder.userId.setText(String.valueOf(item.getOwner().getId()));
+        holder.item_id.setText(String.valueOf(item.getId()));
+        holder.url.setText(item.getUrl());
+        holder.description.setText(item.getDescription());
+        holder.language.setText(item.getLanguage());
 
-        Picasso.with(getContext()).load(item.getOwner().getAvatarUrl()).placeholder(R.mipmap.ic_launcher).fit().into(holder.avatar);
+        //Picasso.with(getContext()).load(item.getOwner().getAvatarUrl()).placeholder(R.mipmap.ic_launcher).fit().into(holder.language);
 
         return convertView;
     }
 
     static class ViewHolder {
-        TextView login;
+        TextView item_id;
         TextView url;
-        TextView userId;
-        ImageView avatar;
+        TextView description;
+        TextView language;
     }
 }
