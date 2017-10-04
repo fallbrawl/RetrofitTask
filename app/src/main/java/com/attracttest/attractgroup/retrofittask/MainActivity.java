@@ -1,8 +1,11 @@
 package com.attracttest.attractgroup.retrofittask;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
-import android.os.Message;
+import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -11,17 +14,12 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.ListView;
-
-import java.io.IOException;
-import java.util.ArrayList;
-
-import android.os.Handler;
 import android.widget.TextView;
 
-import com.attracttest.attractgroup.retrofittask.pojos.GitResponse;
 import com.attracttest.attractgroup.retrofittask.pojos.Item;
 
-import retrofit2.Response;
+import java.util.ArrayList;
+
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
@@ -29,11 +27,10 @@ public class MainActivity extends AppCompatActivity {
     private ArrayList<Item> gitItemsLists;
     private GitItemsAdapter gitItemsAdapter;
     private ListView listView;
-    private Handler handler;
     private EditText searchBar;
     private String searchq = "java";
-
-    GitHubService service;
+    BroadcastReceiver broadcastReceiver;
+    Intent intent;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,31 +45,38 @@ public class MainActivity extends AppCompatActivity {
         searchBar = (EditText) findViewById(R.id.searchToolbar);
         searchBar.setImeActionLabel("Srch", KeyEvent.KEYCODE_SEARCH);
 
-        //Adapter's init
-        gitItemsLists = new ArrayList<>();
-        gitItemsAdapter = new GitItemsAdapter(this, gitItemsLists);
-
-        Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl(GitHubService.BASE_URL)
-                .addConverterFactory(GsonConverterFactory.create())
-                .build();
-
-        service = retrofit.create(GitHubService.class);
-
-
-        handler = new Handler() {
-            public void handleMessage(android.os.Message msg) {
+        broadcastReceiver = new BroadcastReceiver() {
+            // Actions on message recievin'
+            public void onReceive(Context context, Intent intent) {
+                gitItemsLists.clear();
+                gitItemsLists.addAll((ArrayList<Item>) intent.getSerializableExtra("array"));
                 gitItemsAdapter.notifyDataSetChanged();
+                Log.d("staty", "recieved broadcast with size: " + gitItemsLists.size());
             }
         };
-        startThread();
+
+        IntentFilter intFilt = new IntentFilter("zhekalysak");
+        // Registerin Broadcast
+        registerReceiver(broadcastReceiver, intFilt);
+
+        // Создаем Intent для вызова сервиса,
+        // кладем туда параметр времени и код задачи
+        intent = new Intent(this, MyService.class).putExtra("language", searchq);
+        // стартуем сервис
+        startService(intent);
+
+        // Adapter's init
+        gitItemsLists = new ArrayList<>();
+        gitItemsAdapter = new GitItemsAdapter(this, gitItemsLists);
 
         searchBar.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView textView, int i, KeyEvent keyEvent) {
                 searchq = searchBar.getText().toString();
                 if (!searchq.isEmpty()) {
-                    startThread();
+                    intent = new Intent(getApplicationContext(), MyService.class).putExtra("language", searchq);
+                    // стартуем сервис
+                    startService(intent);
                 }
                 searchBar.setText("");
 
@@ -99,27 +103,32 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    private void startThread() {
-        final Thread tr = new Thread(new Runnable() {
-            Message msg;
-
-            @Override
-            public void run() {
-                try {
-                    //юзать енкуеуе только без треда во избежании создания потока в потоке
-                    Response<GitResponse> response = service.getListReposByLang(searchq).execute();
-                    if (response.isSuccessful()) {
-
-                        Log.d("TAG", "response:" + response.body().getItems().size());
-                        gitItemsLists.clear();
-                        gitItemsLists.addAll(response.body().getItems());
-                        //sendin
-                        handler.sendEmptyMessage(0);
-                    }
-
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        unregisterReceiver(broadcastReceiver);
+    }
+    //    private void startThread() {
+//        final Thread tr = new Thread(new Runnable() {
+//            Message msg;
+//
+//            @Override
+//            public void run() {
+//                try {
+//                    //юзать енкуеуе только без треда во избежании создания потока в потоке
+//                    Response<GitResponse> response = service.getListReposByLang(searchq).execute();
+//                    if (response.isSuccessful()) {
+//
+//                        Log.d("TAG", "response:" + response.body().getItems().size());
+//                        gitItemsLists.clear();
+//                        gitItemsLists.addAll(response.body().getItems());
+//                        //sendin
+//                        handler.sendEmptyMessage(0);
+//                    }
+//
+//                } catch (IOException e) {
+//                    e.printStackTrace();
+//                }
 
 //                service.getListReposByLang(searchq).enqueue(new Callback<Response<ResponseBody>>() {
 //                    @Override
@@ -141,8 +150,8 @@ public class MainActivity extends AppCompatActivity {
 //                        t.printStackTrace();
 //                    }
 //                });
-            }
-        });
-        tr.start();
-    }
+//            }
+//        });
+//        tr.start();
+//    }
 }

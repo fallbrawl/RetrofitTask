@@ -3,10 +3,12 @@ package com.attracttest.attractgroup.retrofittask.pojos;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
+import java.io.Serializable;
+
 /**
  * Created by nexus on 02.10.2017.
  */
-public class Item {
+public class Item implements Serializable {
 
     @SerializedName("id")
     private int id;
