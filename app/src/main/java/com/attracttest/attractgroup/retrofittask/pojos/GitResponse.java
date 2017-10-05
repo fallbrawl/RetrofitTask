@@ -5,6 +5,8 @@ import com.google.gson.annotations.SerializedName;
 import java.io.Serializable;
 import java.util.List;
 
+import io.realm.RealmObject;
+
 /**
  * Created by paul on 03.10.17.
  */
