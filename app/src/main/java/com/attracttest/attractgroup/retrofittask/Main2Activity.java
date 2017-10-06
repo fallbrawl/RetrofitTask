@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.attracttest.attractgroup.retrofittask.pojos.Owner;
 import com.squareup.picasso.Picasso;
 
 public class Main2Activity extends AppCompatActivity {
@@ -23,11 +24,13 @@ public class Main2Activity extends AppCompatActivity {
         tvUrl = (TextView) findViewById(R.id.owners_url);
         avatar = (ImageView) findViewById(R.id.owners_avatar);
 
-        tvType.setText(getIntent().getStringExtra("type"));
-        tvLogin.setText(getIntent().getStringExtra("login"));
-        tvUrl.setText(getIntent().getStringExtra("owners_url"));
 
-        Picasso.with(this).load(getIntent().getStringExtra("avatar_url")).placeholder(R.mipmap.ic_launcher).fit().into(avatar);
+        Owner owner = (Owner) getIntent().getSerializableExtra("owner");
+        tvType.setText(owner.getType());
+        tvLogin.setText(owner.getLogin());
+        tvUrl.setText(owner.getUrl());
+
+        Picasso.with(this).load(owner.getAvatarUrl()).placeholder(R.mipmap.ic_launcher).fit().into(avatar);
 
     }
 }

@@ -9,11 +9,14 @@ import android.util.Log;
 
 import com.attracttest.attractgroup.retrofittask.pojos.GitResponse;
 import com.attracttest.attractgroup.retrofittask.pojos.Item;
+import com.attracttest.attractgroup.retrofittask.pojos.Owner;
 
 import java.io.IOException;
 import java.util.ArrayList;
-
+import java.util.List;
+import android.os.Handler;
 import io.realm.Realm;
+import io.realm.RealmResults;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
@@ -23,6 +26,7 @@ public class MyService extends Service {
     private Retrofit retrofit;
     private GitHubService service;
     private Realm realm;
+    private Handler handler;
 
     final String LOG_TAG = "services";
 
@@ -64,42 +68,23 @@ public class MyService extends Service {
 
             @Override
             public void run() {
-                Intent intent = new Intent("zhekalysak");
+
                 try {
                     //юзать енкуеуе только без треда во избежании создания потока в потоке
                     Response<GitResponse> response = service.getListReposByLang(language).execute();
                     if (response.isSuccessful()) {
-                        realm.beginTransaction();
 
-                        for (Item item :
-                                response.body().getItems()) {
-                            Item smth = realm.createObject(Item.class);
-                            smth.setId(item.getId());
-                            smth.setName(item.getName());
-                            smth.setFullName(item.getFullName());
-                            smth.setOwner(item.getOwner());
-                            smth.set_private(item.get_private());
-                            smth.setHtmlUrl(item.getHtmlUrl());
-                            smth.setDescription(item.getDescription());
-                            smth.setFork(item.getFork());
-                            smth.setUrl(item.getUrl());
-                            smth.setLanguage(item.getLanguage());
+                        //Log.d("TAGGY", "response:" + response.body().getItems().size());
+                        List<Item> wow = response.body().getItems();
+                        Log.d("TAGGY", "response:" + wow.size());
+//                        Bundle bundle = new Bundle();
+//                        bundle.putSerializable("array", (ArrayList<Item>) wow);
 
-//                            smth = new Item(item.getId(), item.getName(), item.getFullName(), item.getOwner(),
-//                                    item.get_private(), item.getHtmlUrl(), item.getDescription(),
-//                                    item.getFork(), item.getUrl(), item.getLanguage());
+                        Message msg;
+                        msg = handler.obtainMessage(0, 0,
+                                0, wow);
 
-
-                        }
-                        realm.commitTransaction();
-
-                        Log.d("TAG", "response:" + response.body().getItems().size());
-                        ArrayList<Item> wow = new ArrayList<>();
-                        wow.addAll(realm.where(Item.class).findAll());
-
-                        intent.putExtra("array", wow);
-                        //sendin
-                        sendBroadcast(intent);
+                        handler.sendMessage(msg);
 
                     }
 
@@ -110,5 +95,66 @@ public class MyService extends Service {
         });
         tr.start();
 
+        handler = new Handler() {
+
+            @Override
+            public void handleMessage(Message msg) {
+                Intent intent = new Intent("zhekalysak");
+                ArrayList<Item> items = (ArrayList<Item>) msg.obj;
+                Log.e("staty", "frompARSE " + items.size());
+
+                for (Item item : items
+                        )
+                {
+                    realm.beginTransaction();
+                    Item gitItems = realm.createObject(Item.class);
+                    Owner ownerItems = realm.createObject(Owner.class);
+                    gitItems.set_id(item.get_id());
+                    gitItems.setName(item.getName());
+                    gitItems.setFullName(item.getFullName());
+
+                    ownerItems.setUrl(item.getOwner().getUrl());
+                    ownerItems.setLogin(item.getOwner().getLogin());
+                    ownerItems.setWowid(item.getOwner().getWowid());
+                    ownerItems.setAvatarUrl(item.getOwner().getAvatarUrl());
+                    gitItems.setOwner(ownerItems);
+
+                    gitItems.set_private(item.get_private());
+                    gitItems.setHtmlUrl(item.getHtmlUrl());
+                    gitItems.setDescription(item.getDescription());
+                    gitItems.setForky(item.getForky());
+                    gitItems.setUrl(item.getUrl());
+                    gitItems.setLanguage(item.getLanguage());
+                    realm.commitTransaction();
+
+                }
+
+                //int o = realm.where(Item.class).findAll();
+
+                RealmResults<Item> resultFromDb = realm.where(Item.class).findAll();
+                ArrayList<Item> arrayListObjects = new ArrayList<>(resultFromDb);
+
+                Bundle args = new Bundle();
+                args.putSerializable("wow", arrayListObjects);
+
+                Log.e("staty", "fromDB " + arrayListObjects.size());
+                //realm.where(Item.class).findAll().clear();
+
+                //sendin
+
+                //Log.e("staty", "fromDB " + resultFromDb.size());
+
+                sendBroadcast(intent.putExtra("array", args));
+
+//                            smth = new Item(item.get_id(), item.getName(), item.getFullName(), item.getOwner(),
+//                                    item.get_private(), item.getHtmlUrl(), item.getDescription(),
+//                                    item.getForky(), item.getUrl(), item.getLanguage());
+
+
+            }
+        };
     }
+
+    ;
 }
+

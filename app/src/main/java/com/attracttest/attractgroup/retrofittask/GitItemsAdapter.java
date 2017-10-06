@@ -11,6 +11,8 @@ import com.attracttest.attractgroup.retrofittask.pojos.Item;
 
 import java.util.List;
 
+import io.realm.Realm;
+
 /**
  * Created by nexus on 30.09.2017.
  */
@@ -21,6 +23,7 @@ public class GitItemsAdapter extends ArrayAdapter<Item> {
     public GitItemsAdapter(Context context, List<Item> objects) {
         super(context, 0, objects);
         mInflater = LayoutInflater.from(context);
+
     }
 
     @Override
@@ -38,6 +41,7 @@ public class GitItemsAdapter extends ArrayAdapter<Item> {
             // Creates a ViewHolder and store references to the two children views
             // we want to bind data to.
             holder = new ViewHolder();
+
             holder.item_id = convertView.findViewById(R.id.item_id);
             holder.url = convertView.findViewById(R.id.url);
             holder.description = convertView.findViewById(R.id.description);
@@ -53,10 +57,11 @@ public class GitItemsAdapter extends ArrayAdapter<Item> {
         Item item = getItem(position);
 
         // Bind the data efficiently with the holder.
-        holder.item_id.setText(String.valueOf(item.getId()));
+
         holder.url.setText(item.getUrl());
         holder.description.setText(item.getDescription());
         holder.language.setText(item.getLanguage());
+        holder.item_id.setText(String.valueOf(item.get_id()));
 
         //Picasso.with(getContext()).load(item.getOwner().getAvatarUrl()).placeholder(R.mipmap.ic_launcher).fit().into(holder.language);
 

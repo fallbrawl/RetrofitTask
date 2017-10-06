@@ -1,6 +1,5 @@
 package com.attracttest.attractgroup.retrofittask.pojos;
 
-import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
 import java.io.Serializable;
@@ -13,19 +12,19 @@ import io.realm.RealmObject;
 public class Item extends RealmObject implements Serializable {
 
     @SerializedName("id")
-    private int id;
+    private int _id;
     @SerializedName("name")
     private String name;
     @SerializedName("full_name")
     private String fullName;
     private Owner owner;
     @SerializedName("private")
-    private Boolean _private;
+    private boolean _private;
     @SerializedName("html_url")
     private String htmlUrl;
 
-    public void setId(int id) {
-        this.id = id;
+    public void set_id(int _id) {
+        this._id = _id;
     }
 
     public void setName(String name) {
@@ -40,7 +39,7 @@ public class Item extends RealmObject implements Serializable {
         this.owner = owner;
     }
 
-    public void set_private(Boolean _private) {
+    public void set_private(boolean _private) {
         this._private = _private;
     }
 
@@ -52,8 +51,8 @@ public class Item extends RealmObject implements Serializable {
         this.description = description;
     }
 
-    public void setFork(boolean fork) {
-        this.fork = fork;
+    public void setForky(boolean forky) {
+        this.forky = forky;
     }
 
     public void setUrl(String url) {
@@ -66,8 +65,8 @@ public class Item extends RealmObject implements Serializable {
 
     @SerializedName("description")
     private String description;
-    @SerializedName("fork")
-    private boolean fork;
+    @SerializedName("forky")
+    private boolean forky;
     @SerializedName("url")
     private String url;
 
@@ -80,8 +79,8 @@ public class Item extends RealmObject implements Serializable {
     public Item() {
     }
 
-    public int getId() {
-        return id;
+    public int get_id() {
+        return _id;
     }
 
     public String getName() {
@@ -96,7 +95,7 @@ public class Item extends RealmObject implements Serializable {
         return owner;
     }
 
-    public Boolean get_private() {
+    public boolean get_private() {
         return _private;
     }
 
@@ -108,8 +107,8 @@ public class Item extends RealmObject implements Serializable {
         return description;
     }
 
-    public Boolean getFork() {
-        return fork;
+    public boolean getForky() {
+        return forky;
     }
 
     public String getUrl() {

@@ -49,7 +49,8 @@ public class MainActivity extends AppCompatActivity {
             // Actions on message recievin'
             public void onReceive(Context context, Intent intent) {
                 gitItemsLists.clear();
-                gitItemsLists.addAll((ArrayList<Item>) intent.getSerializableExtra("array"));
+                Bundle bundle = intent.getBundleExtra("array");
+                gitItemsLists.addAll((ArrayList<Item>) bundle.getSerializable("wow"));
                 gitItemsAdapter.notifyDataSetChanged();
                 Log.d("staty", "recieved broadcast with size: " + gitItemsLists.size());
             }
@@ -59,9 +60,10 @@ public class MainActivity extends AppCompatActivity {
         // Registerin Broadcast
         registerReceiver(broadcastReceiver, intFilt);
 
-        // Создаем Intent для вызова сервиса,
-        // кладем туда параметр времени и код задачи
-        intent = new Intent(this, MyService.class).putExtra("language", searchq);
+        // Creatin' intent
+
+        intent = new Intent(this, MyService.class).putExtra("language", "java");
+        Log.e("staty", "sent!");
         // стартуем сервис
         startService(intent);
 
@@ -92,11 +94,7 @@ public class MainActivity extends AppCompatActivity {
                 Log.e("staty", gitItemsLists.get(i).getOwner().getLogin());
                 Intent intent = new Intent(getBaseContext(), Main2Activity.class);
 
-                intent.putExtra("avatar_url", gitItemsLists.get(i).getOwner().getAvatarUrl());
-                intent.putExtra("type", gitItemsLists.get(i).getOwner().getType());
-                intent.putExtra("login", gitItemsLists.get(i).getOwner().getLogin());
-                intent.putExtra("owners_url", gitItemsLists.get(i).getOwner().getUrl());
-
+                intent.putExtra("owner", gitItemsLists.get(i).getOwner());
                 startActivity(intent);
             }
         });
@@ -105,8 +103,10 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onDestroy() {
-        super.onDestroy();
         unregisterReceiver(broadcastReceiver);
+        stopService(new Intent(this,  MyService.class));
+        super.onDestroy();
+
     }
     //    private void startThread() {
 //        final Thread tr = new Thread(new Runnable() {
