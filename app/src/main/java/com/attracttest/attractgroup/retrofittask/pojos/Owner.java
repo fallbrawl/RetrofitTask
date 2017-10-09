@@ -5,6 +5,7 @@ import com.google.gson.annotations.SerializedName;
 import java.io.Serializable;
 
 import io.realm.RealmObject;
+import io.realm.annotations.PrimaryKey;
 
 /**
  * Created by nexus on 02.10.2017.
@@ -12,6 +13,8 @@ import io.realm.RealmObject;
 public class Owner extends RealmObject implements Serializable {
 
     private String login;
+    @PrimaryKey
+    @SerializedName("id")
     private int wowid;
     @SerializedName("avatar_url")
     private String avatarUrl;

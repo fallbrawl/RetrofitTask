@@ -1,6 +1,7 @@
 package com.attracttest.attractgroup.retrofittask;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -55,6 +56,7 @@ public class GitItemsAdapter extends ArrayAdapter<Item> {
         }
 
         Item item = getItem(position);
+        Log.d("adapter","item"+String.valueOf(item==null));
 
         // Bind the data efficiently with the holder.
 

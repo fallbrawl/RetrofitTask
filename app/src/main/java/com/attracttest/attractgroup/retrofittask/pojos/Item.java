@@ -5,12 +5,14 @@ import com.google.gson.annotations.SerializedName;
 import java.io.Serializable;
 
 import io.realm.RealmObject;
+import io.realm.annotations.PrimaryKey;
 
 /**
  * Created by nexus on 02.10.2017.
  */
 public class Item extends RealmObject implements Serializable {
 
+    @PrimaryKey
     @SerializedName("id")
     private int _id;
     @SerializedName("name")

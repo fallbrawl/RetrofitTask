@@ -49,10 +49,8 @@ public class MainActivity extends AppCompatActivity {
             // Actions on message recievin'
             public void onReceive(Context context, Intent intent) {
                 gitItemsLists.clear();
-                Bundle bundle = intent.getBundleExtra("array");
-                gitItemsLists.addAll((ArrayList<Item>) bundle.getSerializable("wow"));
+                gitItemsLists.addAll((ArrayList<Item>) intent.getSerializableExtra("array"));
                 gitItemsAdapter.notifyDataSetChanged();
-                Log.d("staty", "recieved broadcast with size: " + gitItemsLists.size());
             }
         };
 
@@ -76,7 +74,7 @@ public class MainActivity extends AppCompatActivity {
             public boolean onEditorAction(TextView textView, int i, KeyEvent keyEvent) {
                 searchq = searchBar.getText().toString();
                 if (!searchq.isEmpty()) {
-                    intent = new Intent(getApplicationContext(), MyService.class).putExtra("language", searchq);
+                    intent = new Intent(MainActivity.this, MyService.class).putExtra("language", searchq);
                     // стартуем сервис
                     startService(intent);
                 }
@@ -92,7 +90,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 Log.e("staty", gitItemsLists.get(i).getOwner().getLogin());
-                Intent intent = new Intent(getBaseContext(), Main2Activity.class);
+                Intent intent = new Intent(MainActivity.this, Main2Activity.class);
 
                 intent.putExtra("owner", gitItemsLists.get(i).getOwner());
                 startActivity(intent);
